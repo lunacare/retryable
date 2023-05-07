@@ -119,9 +119,10 @@ Sleeping
 By default Retryable waits for one second between retries. You can change this and even provide your own exponential backoff scheme.
 
 ```ruby
-Retryable.retryable(sleep: 0) { }                     # don't pause at all between retries
-Retryable.retryable(sleep: 10) { }                    # sleep ten seconds between retries
-Retryable.retryable(sleep: lambda { |n| 4**n }) { }   # sleep 1, 4, 16, etc. each try
+Retryable.retryable(sleep: 0) { }                                                # don't pause at all between retries
+Retryable.retryable(sleep: 10) { }                                               # sleep ten seconds between retries
+Retryable.retryable(sleep: lambda { |n| 4**n }) { }                              # sleep 1, 4, 16, etc. each try
+Retryable.retryable(sleep: lambda { |n, exception| exception.retry_after }) { }  # sleep `retry_after` seconds
 ```
 
 Matching error messages

@@ -23,7 +23,7 @@ module Retryable
     #     config.not          = []
     #     config.on           = StandardError
     #     config.sleep        = 1
-    #     config.sleep_method = ->(seconds) { Kernel.sleep(seconds) }
+    #     config.sleep_method = ->(seconds, exception) { Kernel.sleep(seconds) }
     #     config.tries        = 2
     #   end
     def configure
@@ -82,7 +82,12 @@ module Retryable
         # Interrupt Exception could be raised while sleeping
         begin
           seconds = opts[:sleep].respond_to?(:call) ? opts[:sleep].call(retries) : opts[:sleep]
-          opts[:sleep_method].call(seconds)
+          case opts[:sleep_method].arity
+          when 1
+            opts[:sleep_method].call(seconds)
+          when 2
+            opts[:sleep_method].call(seconds, exception)
+          end
         rescue *not_exception
           raise
         rescue *on_exception

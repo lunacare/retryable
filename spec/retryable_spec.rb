@@ -110,9 +110,19 @@ RSpec.describe Retryable do
       end.to raise_error RangeError
     end
 
-    it 'calls :sleep_method option' do
+    it 'calls :sleep_method option, sleep(n)' do
       sleep_method = double
       expect(sleep_method).to receive(:call).twice
+      expect(sleep_method).to receive(:arity).twice.and_return(1)
+      expect do
+        described_class.retryable(tries: 3, sleep_method: sleep_method) { |tries| raise RangeError if tries < 9 }
+      end.to raise_error RangeError
+    end
+
+    it 'calls :sleep_method option, sleep(n, exception)' do
+      sleep_method = double
+      expect(sleep_method).to receive(:call).twice
+      expect(sleep_method).to receive(:arity).twice.and_return(2)
       expect do
         described_class.retryable(tries: 3, sleep_method: sleep_method) { |tries| raise RangeError if tries < 9 }
       end.to raise_error RangeError
